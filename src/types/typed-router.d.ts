@@ -114,6 +114,62 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    'WmsHome': RouteRecordInfo<
+      'WmsHome',
+      '/wms',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    'WmsInbound': RouteRecordInfo<
+      'WmsInbound',
+      '/wms/inbound',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    'WmsInboundDetail': RouteRecordInfo<
+      'WmsInboundDetail',
+      '/wms/inbound/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    'WmsInboundCreate': RouteRecordInfo<
+      'WmsInboundCreate',
+      '/wms/inbound/create',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    'WmsLookup': RouteRecordInfo<
+      'WmsLookup',
+      '/wms/lookup',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    'WmsOutbound': RouteRecordInfo<
+      'WmsOutbound',
+      '/wms/outbound',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    'WmsOutboundDetail': RouteRecordInfo<
+      'WmsOutboundDetail',
+      '/wms/outbound/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    'WmsOutboundCreate': RouteRecordInfo<
+      'WmsOutboundCreate',
+      '/wms/outbound/create',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -202,6 +258,54 @@ declare module 'vue-router/auto-routes' {
     'src/pages/unocss/index.vue': {
       routes:
         | 'UnoCSS'
+      views:
+        | never
+    }
+    'src/pages/wms/index.vue': {
+      routes:
+        | 'WmsHome'
+      views:
+        | never
+    }
+    'src/pages/wms/inbound/index.vue': {
+      routes:
+        | 'WmsInbound'
+      views:
+        | never
+    }
+    'src/pages/wms/inbound/[id].vue': {
+      routes:
+        | 'WmsInboundDetail'
+      views:
+        | never
+    }
+    'src/pages/wms/inbound/create.vue': {
+      routes:
+        | 'WmsInboundCreate'
+      views:
+        | never
+    }
+    'src/pages/wms/lookup/index.vue': {
+      routes:
+        | 'WmsLookup'
+      views:
+        | never
+    }
+    'src/pages/wms/outbound/index.vue': {
+      routes:
+        | 'WmsOutbound'
+      views:
+        | never
+    }
+    'src/pages/wms/outbound/[id].vue': {
+      routes:
+        | 'WmsOutboundDetail'
+      views:
+        | never
+    }
+    'src/pages/wms/outbound/create.vue': {
+      routes:
+        | 'WmsOutboundCreate'
       views:
         | never
     }

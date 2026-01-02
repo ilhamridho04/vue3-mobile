@@ -5,26 +5,20 @@ export interface LoginData {
   password: string
 }
 
-export interface LoginRes {
-  token: string
-}
-
 export interface UserState {
   uid?: number
   name?: string
   avatar?: string
+  email?: string
+  roles?: string[]
+  permissions?: string[]
 }
 
-export function login(data: LoginData): Promise<any> {
-  return request.post<LoginRes>('/auth/login', data)
-}
+// NOTE: For this WMS mobile SPA we use Laravel web login + Sanctum cookies.
+// Login/logout are handled by Laravel routes; mobile app only needs /mobile/me.
 
-export function logout() {
-  return request.post('/user/logout')
-}
-
-export function getUserInfo() {
-  return request<UserState>('/user/me')
+export function getMe() {
+  return request.get('/mobile/me')
 }
 
 export function getEmailCode(): Promise<any> {

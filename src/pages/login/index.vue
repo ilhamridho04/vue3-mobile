@@ -35,10 +35,10 @@ const rules = reactive({
   ],
 })
 
-async function login(values: any) {
+async function login() {
   try {
     loading.value = true
-    await userStore.login({ ...postData, ...values })
+    await userStore.login()
     const { redirect, ...othersQuery } = router.currentRoute.value.query
     router.push({
       name: (redirect as keyof RouteMap) || 'Home',

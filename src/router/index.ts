@@ -6,8 +6,6 @@ import 'nprogress/nprogress.css'
 
 import type { EnhancedRouteLocation } from './types'
 import { useRouteCacheStore, useUserStore } from '@/stores'
-
-import { isLogin } from '@/utils/auth'
 import setPageTitle from '@/utils/set-page-title'
 
 NProgress.configure({ showSpinner: true, parent: '#app' })
@@ -24,6 +22,11 @@ if (import.meta.hot)
 router.beforeEach(async (to: EnhancedRouteLocation) => {
   NProgress.start()
 
+  // Mobile app is worker-focused: default landing goes to WMS.
+  // This ensures /mobile redirects to /mobile/wms (SPA path: /wms).
+  if (to.path === '/')
+    return { path: '/wms', replace: true }
+
   const routeCacheStore = useRouteCacheStore()
   const userStore = useUserStore()
 
@@ -33,8 +36,14 @@ router.beforeEach(async (to: EnhancedRouteLocation) => {
   // Set page title
   setPageTitle(to.name)
 
-  if (isLogin() && !userStore.userInfo?.uid)
-    await userStore.info()
+  if (!userStore.userInfo?.uid) {
+    try {
+      await userStore.info()
+    }
+    catch {
+      // If unauthenticated, Laravel will redirect anyway (route protected).
+    }
+  }
 })
 
 router.afterEach(() => {

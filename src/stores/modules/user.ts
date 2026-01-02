@@ -1,15 +1,6 @@
 import { defineStore } from 'pinia'
-import type { LoginData, UserState } from '@/api/user'
-import { clearToken, setToken } from '@/utils/auth'
-
-import {
-  getEmailCode,
-  getUserInfo,
-  resetPassword,
-  login as userLogin,
-  logout as userLogout,
-  register as userRegister,
-} from '@/api/user'
+import type { UserState } from '@/api/user'
+import { getMe } from '@/api/user'
 
 const InitUserInfo = {
   uid: 0,
@@ -25,70 +16,38 @@ export const useUserStore = defineStore('user', () => {
     userInfo.value = { ...partial }
   }
 
-  const login = async (loginForm: LoginData) => {
-    try {
-      const { data } = await userLogin(loginForm)
-      setToken(data.token)
-    }
-    catch (error) {
-      clearToken()
-      throw error
-    }
+  const login = async () => {
+    // Mobile SPA is served behind Laravel auth; use the standard web login.
+    window.location.href = '/mobile-auth/login'
   }
 
   const info = async () => {
     try {
-      const { data } = await getUserInfo()
-      setInfo(data)
+      const { data } = await getMe()
+
+      setInfo({
+        uid: data.user?.id,
+        name: data.user?.name,
+        email: data.user?.email,
+        roles: data.roles || [],
+        permissions: data.permissions || [],
+      })
     }
     catch (error) {
-      clearToken()
       throw error
     }
   }
 
   const logout = async () => {
-    try {
-      await userLogout()
-    }
-    finally {
-      clearToken()
-      setInfo({ ...InitUserInfo })
-    }
-  }
-
-  const getCode = async () => {
-    try {
-      const data = await getEmailCode()
-      return data
-    }
-    catch {}
-  }
-
-  const reset = async () => {
-    try {
-      const data = await resetPassword()
-      return data
-    }
-    catch {}
-  }
-
-  const register = async () => {
-    try {
-      const data = await userRegister()
-      return data
-    }
-    catch {}
+    // Logout handled by Laravel (/logout). Reset local cache only.
+    setInfo({ ...InitUserInfo })
   }
 
   return {
     userInfo,
-    info,
     login,
+    info,
     logout,
-    getCode,
-    reset,
-    register,
   }
 }, {
   persist: true,

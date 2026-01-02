@@ -22,6 +22,9 @@ import 'vant/es/dialog/style'
 import 'vant/es/notify/style'
 import 'vant/es/image-preview/style'
 
+import { showConfirmDialog, showNotify } from 'vant'
+import { registerSW } from 'virtual:pwa-register'
+
 const app = createApp(App)
 const head = createHead()
 
@@ -29,5 +32,34 @@ app.use(head)
 app.use(router)
 app.use(pinia)
 app.use(i18n)
+
+// PWA: show "update available" prompt when a new SW is waiting.
+if (import.meta.env.PROD) {
+    let prompting = false
+
+    const updateSW = registerSW({
+        immediate: true,
+        onNeedRefresh() {
+            if (prompting)
+                return
+            prompting = true
+
+            showConfirmDialog({
+                title: 'Update tersedia',
+                message: 'Versi terbaru sudah tersedia. Update sekarang?',
+                confirmButtonText: 'Update',
+                cancelButtonText: 'Nanti',
+            })
+                .then(() => updateSW(true))
+                .catch(() => { })
+                .finally(() => {
+                    prompting = false
+                })
+        },
+        onOfflineReady() {
+            showNotify({ type: 'success', message: 'PWA siap digunakan offline' })
+        },
+    })
+}
 
 app.mount('#app')

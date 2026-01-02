@@ -2,21 +2,16 @@
 import type { PickerColumn } from 'vant'
 import { languageColumns, locale } from '@/utils/i18n'
 
-const { t } = useI18n()
-
 const checked = computed({
   get: () => isDark.value,
   set: () => toggleDark(),
 })
 
 const menuItems = computed(() => ([
-  { title: t('navbar.Mock'), route: 'mock' },
-  { title: t('navbar.Charts'), route: 'charts' },
-  { title: t('navbar.UnoCSS'), route: 'unocss' },
-  { title: t('navbar.Counter'), route: 'counter' },
-  { title: t('navbar.KeepAlive'), route: 'keepalive' },
-  { title: t('navbar.ScrollCache'), route: 'scroll-cache' },
-  { title: t('navbar.404'), route: 'unknown' },
+  { title: 'WMS', route: '/wms' },
+  { title: 'Lookup Barang', route: '/wms/lookup' },
+  { title: 'Inbound', route: '/wms/inbound' },
+  { title: 'Outbound', route: '/wms/outbound' },
 ]))
 
 const showLanguagePicker = ref(false)
@@ -49,7 +44,7 @@ function onLanguageConfirm(event: { selectedOptions: PickerColumn }) {
     />
   </van-cell-group>
 
-  <van-cell-group :title="$t('home.examples')" :border="false" :inset="true">
+  <van-cell-group title="WMS" :border="false" :inset="true">
     <template v-for="item in menuItems" :key="item.route">
       <van-cell :title="item.title" :to="item.route" is-link />
     </template>

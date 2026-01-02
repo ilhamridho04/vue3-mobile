@@ -94,6 +94,7 @@ export function createVitePlugins(mode: string) {
 
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
+      injectRegister: null,
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
       manifest: {

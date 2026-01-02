@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import type { FieldRule } from 'vant'
 import { showNotify } from 'vant'
-import { useUserStore } from '@/stores'
 import vw from '@/utils/inline-px-to-vw'
 
 const { t } = useI18n()
-const router = useRouter()
-const userStore = useUserStore()
 const loading = ref(false)
 
 const postData = reactive({
@@ -39,12 +35,8 @@ async function reset() {
   try {
     loading.value = true
 
-    const res = await userStore.reset()
-
-    if (res.code === 0) {
-      showNotify({ type: 'success', message: t('forgotPassword.passwordResetSuccess') })
-      router.push({ name: 'Login' })
-    }
+    // Use Laravel's built-in forgot-password flow
+    window.location.href = '/forgot-password'
   }
   finally {
     loading.value = false
@@ -58,16 +50,7 @@ const buttonText = computed(() => {
 })
 
 async function getCode() {
-  if (!postData.email) {
-    showNotify({ type: 'warning', message: t('forgotPassword.pleaseEnterEmail') })
-    return
-  }
-
-  isGettingCode.value = true
-  const res = await userStore.getCode()
-  if (res.code === 0)
-    showNotify({ type: 'success', message: `${t('forgotPassword.sendCodeSuccess')}: ${res.result}` })
-
+  showNotify({ type: 'warning', message: 'Use /forgot-password (Laravel) instead' })
   isGettingCode.value = false
 }
 </script>

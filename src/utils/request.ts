@@ -1,19 +1,42 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { showNotify } from 'vant'
-import { STORAGE_TOKEN_KEY } from '@/stores/mutation-type'
 
-// 这里是用于设定请求后端时，所用的 Token KEY
-// 可以根据自己的需要修改，常见的如 Access-Token，Authorization
-// 需要注意的是，请尽量保证使用中横线`-` 来作为分隔符，
-// 避免被 nginx 等负载均衡器丢弃了自定义的请求头
-export const REQUEST_TOKEN_KEY = 'Access-Token'
+let csrfReady = false
+let csrfPromise: Promise<void> | null = null
+
+async function ensureCsrfCookie(): Promise<void> {
+  if (csrfReady)
+    return
+  if (csrfPromise)
+    return csrfPromise
+
+  csrfPromise = axios
+    .get('/sanctum/csrf-cookie', {
+      baseURL: '',
+      withCredentials: true,
+    })
+    .then(() => {
+      csrfReady = true
+    })
+    .finally(() => {
+      csrfPromise = null
+    })
+
+  return csrfPromise
+}
 
 // 创建 axios 实例
 const request = axios.create({
   // API 请求的默认前缀
-  baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+  baseURL: import.meta.env.VITE_APP_API_BASE_URL || '/api',
   timeout: 6000, // 请求超时时间
+  withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+  },
 })
 
 export type RequestError = AxiosError<{
@@ -34,25 +57,34 @@ function errorHandler(error: RequestError): Promise<any> {
       })
     }
     // 401 未登录/未授权
-    if (status === 401 && data.result && data.result.isLogin) {
+    if (status === 401) {
       showNotify({
         type: 'danger',
-        message: 'Authorization verification failed',
+        message: (data && data.message) || 'Unauthenticated',
       })
-      // 如果你需要直接跳转登录页面
-      // location.replace(loginRoutePath)
+
+      // If session expired, bounce to Laravel login
+      try {
+        window.location.href = '/mobile-auth/login'
+      }
+      catch { }
+    }
+
+    // 419 CSRF token mismatch / Page expired
+    if (status === 419) {
+      csrfReady = false
     }
   }
   return Promise.reject(error)
 }
 
 // 请求拦截器
-function requestHandler(config: InternalAxiosRequestConfig): InternalAxiosRequestConfig | Promise<InternalAxiosRequestConfig> {
-  const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY)
-  // 如果 token 存在
-  // 让每个请求携带自定义 token, 请根据实际情况修改
-  if (savedToken)
-    config.headers[REQUEST_TOKEN_KEY] = savedToken
+async function requestHandler(config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
+  const method = (config.method || 'get').toLowerCase()
+
+  // For state-changing requests, ensure Sanctum CSRF cookie is set
+  if (['post', 'put', 'patch', 'delete'].includes(method))
+    await ensureCsrfCookie()
 
   return config
 }
